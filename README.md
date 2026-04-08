@@ -1,27 +1,31 @@
-# [cite_start]Investigación: GNS3 + Hipervisores (ESXi y VirtualBox) [cite: 2]
+# Investigación: GNS3 + Hipervisores (ESXi y VirtualBox)
 
-[cite_start]![Estado](https://img.shields.io/badge/Estado-Investigación%20Completada-green) [cite: 79]
+![Estado](https://img.shields.io/badge/Estado-Investigación%20Completada-green)
+![Plataforma](https://img.shields.io/badge/Plataforma-GNS3%20%2B%20Windows11-blue)
 
-## [cite_start]1. Arquitectura de Virtualización en Windows 11 [cite: 11]
-* [cite_start]**Aislamiento de Núcleo y VBS**: Estas funciones de seguridad de Windows 11 pueden generar conflictos con hipervisores de terceros al usar Hyper-V de forma silenciosa[cite: 13, 49].
-* [cite_start]**Activación de VT-x/AMD-V**: Es obligatorio habilitar estas extensiones en la BIOS para permitir que el hardware soporte la virtualización anidada[cite: 14].
+## 1. Arquitectura de Virtualización en Windows 11
+* **Aislamiento de Núcleo y VBS**: Estas funciones de seguridad de Windows 11 pueden generar conflictos con hipervisores de terceros al usar Hyper-V de forma silenciosa.
+* **Activación de VT-x/AMD-V**: Es obligatorio habilitar estas extensiones en la BIOS para permitir que el hardware soporte la virtualización anidada.
 
-## [cite_start]2. GNS3 VM: El Motor de Simulación [cite: 15]
-* [cite_start]**KVM (Kernel-based Virtual Machine)**: Es vital que aparezca como "True" para obtener un rendimiento profesional mediante aceleración de hardware nativa[cite: 16].
-* [cite_start]**Configuración de Recursos**: Se debe asignar CPU y RAM suficientes (ej. 4GB RAM) sin comprometer la estabilidad del sistema anfitrión Windows 11[cite: 18].
+## 2. GNS3 VM: El Motor de Simulación
+* **KVM (Kernel-based Virtual Machine)**: Es vital que aparezca como "True" para obtener un rendimiento profesional mediante aceleración de hardware nativa.
+* **Configuración de Recursos**: Se debe asignar CPU y RAM suficientes (ej. 4GB RAM) sin comprometer la estabilidad del sistema anfitrión Windows 11.
 
-## [cite_start]3. Integración con VirtualBox (Local) [cite: 19]
-* [cite_start]**Configuración de Red**: Se requiere un adaptador **Host-Only** para permitir la comunicación entre la GUI de GNS3 y el servidor local[cite: 21].
-* [cite_start]**Modo Promiscuo**: Configuración técnica necesaria para permitir el flujo de tráfico de Capa 2 entre las máquinas virtuales[cite: 22].
+## 3. Integración con VirtualBox (Local)
+* **Configuración de Red**: Se requiere un adaptador **Host-Only** para permitir la comunicación entre la GUI de GNS3 y el servidor local.
+* **Modo Promiscuo**: Configuración técnica necesaria para permitir el flujo de tráfico de Capa 2 entre las máquinas virtuales.
 
-## [cite_start]4. Integración con VMware ESXi (Remoto) [cite: 23]
-* [cite_start]**Arquitectura Cliente-Servidor**: Permite gestionar laboratorios desde una laptop conectada a un servidor ESXi físico remoto[cite: 24].
-* [cite_start]**Seguridad en vSwitch**: En ESXi, es obligatorio habilitar el "Modo Promiscuo" y "Cambios de dirección MAC" en las políticas de seguridad del port group[cite: 25].
+## 4. Integración con VMware ESXi (Remoto)
+* **Arquitectura Cliente-Servidor**: Permite gestionar laboratorios desde una laptop conectada a un servidor ESXi físico remoto.
+* **Seguridad en vSwitch**: En ESXi, es obligatorio habilitar el "Modo Promiscuo" y "Cambios de dirección MAC" en las políticas de seguridad del port group.
 
-## [cite_start]5. Matriz de Solución de Errores (Troubleshooting) [cite: 26, 39]
+## 5. Matriz de Solución de Errores (Troubleshooting)
 
 | Error Detectado | Causa Técnica | Solución Implementada |
 | :--- | :--- | :--- |
-| **KVM support available: False** | [cite_start]Falta pasar las extensiones de virtualización (VT-x) a la VM[cite: 42]. | [cite_start]Ejecutar `VBoxManage modifyvm "GNS3 VM" --nested-hw-virt on`[cite: 42, 47]. |
-| **Sin conectividad Router-VM** | [cite_start]El adaptador no está en modo promiscuo o no coincide el bridge[cite: 42]. | [cite_start]Cambiar a "Generic Driver" o activar Modo Promiscuo en "Permitir todo"[cite: 42]. |
-| **Error puerto 3080** | [cite_start]El Firewall de Windows 11 está bloqueando la API de GNS3[cite: 42]. | [cite_start]Crear regla de entrada en el Firewall para los puertos TCP 3080 y 5000-10000[cite: 42]. |S# GNS3-Investigacion-Hipervisores
+| **GNS3 VM: KVM support available: False** | El hipervisor no está pasando las extensiones de virtualización (VT-x/AMD-V) a la VM anidada. | En VirtualBox: Ejecutar `VBoxManage modifyvm "GNS3 VM" --nested-hw-virt on` desde la terminal. |
+| **No hay conectividad entre Router y VM** | El Adaptador de Red no está en modo promiscuo o no coincide con el bridge de GNS3. | Cambiar el adaptador a "Generic Driver" o asegurar el Modo Promiscuo en "Permitir todo". |
+| **Error de conexión al servidor (Puerto 3080)** | El Firewall de Windows 11 o el Antivirus está bloqueando las peticiones de la API de GNS3. | Crear una regla de entrada en el Firewall para permitir tráfico TCP en los puertos 3080 y 5000-10000. |
+
+---
+*Investigación técnica para la implementación de laboratorios avanzados.*
