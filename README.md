@@ -1,3 +1,4 @@
+![Estado](https://img.shields.io/badge/Estado-Investigación_Completada-green) ![Plataforma](https://img.shields.io/badge/Plataforma-GNS3%20%2B%20Windows11-blue)
 # Investigación: GNS3 e Hipervisores (Windows 11)
 
 Este repositorio documenta la investigación y configuración de un entorno de emulación de redes profesional.
@@ -30,5 +31,9 @@ La GNS3 VM es el servidor que ejecuta los nodos de red de manera eficiente.
 | Error puerto 3080 | El Firewall de Windows bloquea la API de GNS3. | Crear regla de entrada en el Firewall para el ejecutable de GNS3. |
 | Sin conectividad de red | Adaptador de red no está en modo promiscuo. | Cambiar configuración de red de la VM a "Permitir todo". |
 
+## 5. Diagrama de Arquitectura
+El siguiente esquema muestra la jerarquía de la instalación, donde la GNS3 VM corre de forma anidada dentro del hipervisor VirtualBox sobre el sistema anfitrión Windows 11.
+
+![Diagrama de Arquitectura](img/diagrama.png)
 ---
 *Investigación técnica para SENATI - Ingeniería de Ciberseguridad.*
