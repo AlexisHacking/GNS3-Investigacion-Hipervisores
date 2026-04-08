@@ -13,13 +13,13 @@ Para ejecutar laboratorios de red, se habilitó la **Virtualización** en la BIO
 La GNS3 VM es el servidor que ejecuta los nodos de red de manera eficiente.
 * **Soporte KVM**: Como se muestra en la captura, el estado es **True**, garantizando aceleración por hardware nativa.
 
-![Evidencia KVM](img/Prueba%20de%20Rendimiento%20KVM%20True)
+![Evidencia KVM](img/kvm.png)
 
 ## 3. Integración con VirtualBox y VMware ESXi
 ### VirtualBox (Tipo 2)
 Se configuró un adaptador **Host-Only** y se activó el **Modo Promiscuo** (Permitir todo) para que el tráfico de Capa 2 sea procesado correctamente por los routers virtuales.
 
-![Captura de Instalación](img/Instalación%20de%20GNS3%20VM)
+![Captura de Instalación](img/instalacion.png)
 
 ### VMware ESXi (Tipo 1)
 A diferencia de VirtualBox, ESXi corre directamente sobre el hardware. La conexión se realiza mediante la IP del servidor y el puerto 3080.
