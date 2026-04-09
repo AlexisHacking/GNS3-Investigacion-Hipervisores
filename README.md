@@ -1,41 +1,51 @@
-![Estado](https://img.shields.io/badge/Estado-Investigación_Completada-green) ![Plataforma](https://img.shields.io/badge/Plataforma-GNS3%20%2B%20Windows11-blue)
+![Estado](https://img.shields.io/badge/Estado-Investigación_Finalizada-green) ![Plataforma](https://img.shields.io/badge/Plataforma-GNS3%20%2B%20Windows11-blue) ![Curso](https://img.shields.io/badge/Curso-Ciberseguridad-red)
 
-# Investigación: GNS3 e Hipervisores (Windows 11)
+# Implementación Avanzada de GNS3 sobre Entornos Híbridos (Windows 11, VirtualBox y ESXi)
 
-Este repositorio documenta la investigación y configuración de un entorno de emulación de redes profesional para la carrera de Ingeniería de Ciberseguridad.
+Este repositorio contiene la investigación técnica detallada sobre la integración de hipervisores de Tipo 1 y Tipo 2 para la emulación de redes de alta fidelidad.
 
 ## 1. Arquitectura de Virtualización en Windows 11
-Para ejecutar laboratorios de red, se habilitó la **Virtualización** en la BIOS/UEFI. 
-* **Seguridad**: Se verificó que el "Aislamiento de núcleo" no bloquee los recursos de VirtualBox.
-* **VT-x/AMD-V**: Esencial para que el hipervisor acceda directamente al procesador.
+La implementación en Windows 11 presenta desafíos únicos debido a las capas de seguridad integradas:
 
-## 2. GNS3 VM: El Motor de Simulación
-La GNS3 VM es el servidor que ejecuta los nodos de red de manera eficiente.
-* **Soporte KVM**: Como se muestra en la captura, el estado es **True**, garantizando aceleración por hardware nativa.
+* **VBS (Virtualization-Based Security)**: El aislamiento de núcleo utiliza Hyper-V de forma silenciosa, lo que puede generar conflictos con otros hipervisores de Tipo 2. Se configuró el sistema para permitir la coexistencia de recursos.
+* **Activación de VT-x/AMD-V**: Se habilitaron las extensiones de virtualización en la BIOS/UEFI, permitiendo que el procesador gestione las instrucciones de las máquinas virtuales en el **Anillo 0**, reduciendo drásticamente la latencia.
 
-![Evidencia KVM](img/kvm.png)
+## 2. GNS3 VM: El Motor de Aceleración KVM
+Para un rendimiento profesional, no basta con ejecutar GNS3 de forma local; es imperativo el uso de la **GNS3 VM**.
 
-## 3. Integración con VirtualBox y VMware ESXi
-### VirtualBox (Tipo 2)
-Se configuró un adaptador **Host-Only** y se activó el **Modo Promiscuo** (Permitir todo) para que el tráfico de Capa 2 sea procesado correctamente por los routers virtuales.
+* **KVM (Kernel-based Virtual Machine)**: Se logró activar el soporte KVM (**KVM support: True**). Esto permite que las máquinas virtuales (como routers Cisco o Firewalls Fortinet) corran de forma casi nativa sobre el kernel de Linux de la VM, evitando la emulación por software que consume demasiada CPU.
 
-![Captura de Instalación](img/instalacion.png)
+![Evidencia de Configuración KVM](img/kvm.png)
 
-### VMware ESXi (Tipo 1)
-A diferencia de VirtualBox, ESXi corre directamente sobre el hardware. La conexión se realiza mediante la IP del servidor y el puerto 3080.
+## 3. Integración de Hipervisores (Tipo 1 vs Tipo 2)
+
+### VirtualBox (Tipo 2 - Local)
+Utilizado para entornos de desarrollo rápido. Se configuró:
+* **Adaptador Host-Only**: Para crear una red privada entre el GUI de GNS3 y la VM.
+* **Modo Promiscuo**: Configurado en "Permitir todo". Técnicamente, esto es vital para que la interfaz de red capture y procese tramas que no van dirigidas a su propia dirección MAC, permitiendo el switching de Capa 2.
+
+![Captura de Instalación y Recursos](img/instalacion.png)
+
+### VMware ESXi (Tipo 1 - Remoto/Bare-Metal)
+En un escenario de producción, GNS3 se conecta a un servidor ESXi.
+* **Optimización**: Al correr directamente sobre el hardware (Bare-Metal), se elimina el "overhead" del sistema operativo anfitrión.
+* **Políticas de Seguridad en vSwitch**: Se investigó la necesidad de aceptar "MAC address changes" y "Forged transmits" en los grupos de puertos de ESXi para permitir topologías de red complejas.
 
 ## 4. Matriz de Solución de Errores (Troubleshooting)
 
-| Error Detectado | Causa Técnica | Solución Implementada |
+| Error Detectado | Análisis Técnico | Solución Implementada |
 | :--- | :--- | :--- |
-| **KVM support: False** | Extensiones de virtualización no enviadas a la VM. | Ejecutar `VBoxManage modifyvm "GNS3 VM" --nested-hw-virt on`. |
-| **Error puerto 3080** | Firewall de Windows bloqueando la API. | Crear regla de entrada en el Firewall para el puerto 3080. |
-| **Sin conectividad** | Modo promiscuo desactivado. | Cambiar adaptador a "Permitir todo" en VirtualBox. |
+| **KVM: False** | El hipervisor no hereda las capacidades de virtualización de la CPU física (Virtualización Anidada). | `VBoxManage modifyvm "GNS3 VM" --nested-hw-virt on` o habilitar en ajustes de procesador. |
+| **Port 3080 Blocked** | Conflicto de socket entre el cliente GNS3 y el servidor por bloqueo de Firewall. | Apertura de puertos TCP 3080 y rango dinámico (5000-10000) en el Firewall de Windows 11. |
+| **uBridge Permissions** | El servicio uBridge requiere privilegios elevados para interceptar tráfico de red. | Ejecutar GNS3 con privilegios de administrador y configurar `setcap` en entornos Linux. |
 
-## 5. Diagrama de Arquitectura
-El siguiente esquema muestra la jerarquía de la instalación:
+## 5. Diagrama de Arquitectura del Sistema
+El siguiente diagrama representa la jerarquía de las capas de software y hardware configuradas:
 
-![Diagrama de Red](img/diagrama.png)
+![Diagrama de Red y Capas](img/diagrama.png)
 
 ---
-*Alexis Smith Navarro Luque - SENATI 2026*
+**Autor:** Alexis Smith Navarro Luque  
+**Institución:** SENATI  
+**Carrera:** Ingeniería de Ciberseguridad (5to Semestre)  
+**Fecha:** 2026
